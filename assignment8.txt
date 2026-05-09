@@ -1,0 +1,77 @@
+ assignment8
+
+// 1
+db.createCollection("books",{
+  validator:{
+    $jsonSchema:{
+      bsonType:"object",
+      required:["title"],
+      properties:{
+        title:{bsonType:"string",minLength: 1 }
+   }
+  }
+})
+
+// 2
+db.authors.insertOne({name: "Author1" })
+
+// 3
+db.createCollection("logs", {capped: true, size: 1024 * 1024 })
+
+// 4
+db.books.createIndex({title: 1 })
+
+// 5
+db.books.insertOne({title: "Future", year: 2020 })
+
+// 6
+db.books.insertMany([
+  { title: "Book1", year: 2001, genres: ["Drama"] },
+  { title: "Book2", year: 1999, genres: ["Horror"] },
+  { title: "Book3", year: 2010, genres: ["Science Fiction"] }
+])
+
+// 7
+db.logs.insertOne({ message: "log", date: new Date() })
+// 8
+db.books.updateOne({ title: "Future" }, { $set: { year: 2022 } })
+// 9
+db.books.findOne({ title: "Brave New World" })
+// 10
+db.books.find({ year: { $gte: 1990, $lte: 2010 } })
+// 11
+db.books.find({ genres: "Science Fiction" })
+// 12
+db.books.find().sort({ year: -1 }).skip(2).limit(3)
+// 13
+db.books.find({ year: { $type: "int" } })
+
+// 14
+db.books.find({ genres: { $nin: ["Horror", "Science Fiction"] } })
+// 15
+db.books.deleteMany({ year: { $lt: 2000 } })
+// 16
+db.books.aggregate([
+  { $match: { year: { $gt: 2000 } } },
+  { $sort: { year: -1 } }
+])
+
+// 17
+db.books.aggregate([
+  { $match: {year: { $gt: 2000 }}},
+  { $project: {title: 1, author: 1, year: 1 }}
+])
+// 18
+db.books.aggregate([{$unwind: "$genres"}])
+
+// 19
+db.books.aggregate([
+  {
+    $lookup: {
+      from: "logs",
+      localField: "_id",
+      foreignField: "bookId",
+      as: "logs"
+ }
+  }
+])
